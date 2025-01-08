@@ -1,0 +1,18 @@
+Bootstrap: docker
+From: ghcr.io/napari/napari-xpra:sha-2a0cee2
+
+%appinstall codeserver
+    curl -fsSL https://code-server.dev/install.sh | sh
+
+%apprun codeserver
+    exec code-server "${@}"
+
+%apprun napari
+    exec python3 -m napari "${@}"
+
+%post
+    python3 -m pip install --upgrade pip && \
+        python3 -m pip install jupyter jupyterlab black isort pylint omegaconf && \
+        python3 -m pip install tqdm pandas numpy scikit-learn scikit-image scipy && \
+        python3 -m pip install scanpy squidpy spatialdata[extra] leidenalg umap-learn tangram-sc
+

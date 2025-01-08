@@ -1,0 +1,8 @@
+Bootstrap: docker
+From: jupyter/datascience-notebook:latest
+
+%appinstall codeserver
+    curl -fsSL https://code-server.dev/install.sh | sh
+
+%apprun codeserver
+    exec code-server "${@}"

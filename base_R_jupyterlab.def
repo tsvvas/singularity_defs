@@ -1,0 +1,21 @@
+Bootstrap: docker
+From: rocker/tidyverse
+
+%apprun rserver
+    exec rserver "${@}"
+
+%apprun jupyterlab
+    exec jupyter lab --no-browser "${@}"
+
+%post
+    export CONDA_PREFIX=/opt/conda
+    apt-get update && apt-get install --no-install-recommends -y curl
+
+    curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+    /bin/bash Miniforge3-$(uname)-$(uname -m).sh -f -b -p $CONDA_PREFIX
+    export PATH="$CONDA_PREFIX/bin:$PATH"
+    /bin/bash "${CONDA_PREFIX}/etc/profile.d/conda.sh"
+    /bin/bash "${CONDA_PREFIX}/etc/profile.d/mamba.sh"
+
+    conda create -n myenv python jupyterlab ipykernel
+
