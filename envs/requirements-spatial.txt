@@ -1,0 +1,37 @@
+adjusttext
+anndata
+bbknn
+captum
+cellcharter
+cellrank
+cnmf
+dask==2024.11.2 # https://github.com/scverse/squidpy/issues/937
+datatable @ git+https://github.com/h2oai/datatable@main
+decoupler
+fastcluster
+gprofiler-official
+gseapy
+h5py
+harmonypy
+leidenalg
+openpyxl
+numpy<2.0
+patchworklib
+pillow
+pygls
+pylint
+PyYAML
+scanpy
+sccoda==0.1.9
+scib
+scikit-learn
+scipy
+scvelo
+scvi-tools
+spatialdata[extra]>=0.3
+squidpy==1.6.3
+starcatpy
+tangram-sc
+tf-keras
+tqdm
+umap-learn

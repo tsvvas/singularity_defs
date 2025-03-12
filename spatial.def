@@ -1,0 +1,33 @@
+Bootstrap: docker
+From: jupyter/datascience-notebook:latest
+
+%files
+    envs/requirements-spatial.txt /app/requirements-spatial.txt
+    envs/requirements-dev.txt /app/requirements-dev.txt
+    envs/spatial.yaml /app/spatial.yaml
+
+%environment
+    CARGO_HOME="/opt/.cargo"
+    RUSTUP_HOME="/opt/.rustup"
+    export PATH=$PATH:$CARGO_HOME/bin
+
+%apprun jupyterlab
+    exec jupyter lab --no-browser "${@}"
+
+%appinstall codeserver
+    curl -fsSL https://code-server.dev/install.sh | sh
+
+%apprun codeserver
+    exec code-server "${@}"
+
+%post
+    apt-get update && apt-get install -y graphviz graphviz-dev curl bzip2 flex bison libtool \
+        default-jdk ca-certificates wget gdebi-core
+    apt-get autoremove -y && apt-get clean -y
+
+    export CARGO_HOME=/opt/.cargo 
+    
+    mamba install -y rust
+    mamba update -n base -c conda-forge mamba \
+        && mamba env create --name spatial --file /app/spatial.yaml \
+        && mamba clean --all --yes

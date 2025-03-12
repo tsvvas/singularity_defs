@@ -1,0 +1,8 @@
+black
+hydra-core
+isort
+jedi_language_server
+lsprotocol
+omegaconf
+pygls
+pylint
