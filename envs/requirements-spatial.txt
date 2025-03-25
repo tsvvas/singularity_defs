@@ -29,7 +29,7 @@ scipy
 scvelo
 scvi-tools
 spatialdata[extra]>=0.3
-squidpy==1.6.3
+squidpy>=1.6.5
 starcatpy
 tangram-sc
 tf-keras
