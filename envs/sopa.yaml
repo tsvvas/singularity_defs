@@ -1,0 +1,20 @@
+name: sopa
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - pip
+  - ipykernel
+  - ipython
+  - ipywidgets
+  - widgetsnbextension
+  - jupyter
+  - jupyterlab
+  - nb_conda_kernels
+  - pygraphviz
+  - memray
+  - pip:
+      - -r requirements-segmentation.txt
+      - -r requirements-spatial.txt
+      - -r requirements-dev.txt
