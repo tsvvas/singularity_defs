@@ -1,5 +1,3 @@
-#!/bin/bash
-
 NAME="$1"
 DEF_FILE="$NAME.def"
 
