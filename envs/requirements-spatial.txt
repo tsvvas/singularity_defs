@@ -14,6 +14,7 @@ gseapy
 h5py
 harmonypy
 leidenalg
+numcodecs<0.16 # https://github.com/zarr-developers/numcodecs/issues/721
 numpy<2.0
 openpyxl
 patchworklib
@@ -28,7 +29,7 @@ scib-metrics
 scikit-learn
 scipy
 scvelo
-scvi-tools
+scvi-tools>=1.3.0
 spatialdata[extra]>=0.3
 squidpy>=1.6.5
 starcatpy

@@ -8,9 +8,10 @@ From: jupyter/datascience-notebook:latest
     envs/sopa.yaml /app/sopa.yaml
 
 %environment
-    CARGO_HOME="/opt/.cargo"
-    RUSTUP_HOME="/opt/.rustup"
-    export PATH=$PATH:$CARGO_HOME/bin
+    export CARGO_HOME="/opt/.cargo"
+    export RUSTUP_HOME="/opt/.rustup"
+    export JULIA_SCRATCH="${TMPDIR:-/tmp}"
+    export PATH="$PATH:$CARGO_HOME/bin:/opt/baysor_app/bin:$PATH"
 
 %apprun jupyterlab
     exec jupyter lab --no-browser "${@}"
@@ -22,11 +23,23 @@ From: jupyter/datascience-notebook:latest
     exec code-server "${@}"
 
 %post
-    apt-get update && apt-get install -y graphviz graphviz-dev curl bzip2 flex bison libtool \
-        default-jdk ca-certificates wget gdebi-core gcc g++ cmake
-    apt-get autoremove -y && apt-get clean -y
+    apt-get update && apt-get install -y \
+        graphviz graphviz-dev curl bzip2 flex bison libtool shellcheck \
+        default-jdk ca-certificates wget gdebi-core gcc g++ cmake \
+        && apt-get autoremove -y && apt-get clean -y
 
-    julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/kharchenkolab/Baysor.git")); Pkg.build()'
+    mkdir -p /opt/baysor_app
+
+    julia -e '
+        using Pkg
+        Pkg.add("PackageCompiler")
+        Pkg.add(PackageSpec(url="https://github.com/kharchenkolab/Baysor.git"))
+
+        using Baysor
+        using PackageCompiler
+
+        create_app(dirname(dirname(pathof(Baysor))), "/opt/baysor_app"; force=true)
+    '
 
     export CARGO_HOME=/opt/.cargo 
 
@@ -34,3 +47,7 @@ From: jupyter/datascience-notebook:latest
     mamba update -n base -c conda-forge mamba \
         && mamba env create --name spatial --file /app/sopa.yaml \
         && mamba clean --all --yes
+
+%test
+    echo "Running Baysor --help to confirm installation..."
+    JULIA_SCRATCH="${TMPDIR:-/tmp}" /opt/baysor_app/bin/Baysor --help || { echo "Baysor CLI test failed."; exit 1; }
