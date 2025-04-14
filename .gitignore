@@ -192,3 +192,7 @@ slurm-*.job
 
 ## Built Visual Studio Code Extensions
 *.vsix
+
+# System-specific build script
+build.sh
+build.conf

@@ -1,15 +1,14 @@
 #!/bin/bash
-#SBATCH --job-name=apptainer
-#SBATCH --partition=short
-#SBATCH --time=12:00:00
-#SBATCH --nodes=1
-#SBATCH --mincpus=4
-#SBATCH --mem=16G
-
 
 NAME="$1"
 DEF_FILE="$NAME.def"
-CONTAINER_DIR="$PROJECTDIR/containers"
+
+if [ -n "${PROJECTDIR:-}" ]; then
+    CONTAINER_DIR="$PROJECTDIR/containers"
+else
+    echo "Warning: PROJECTDIR is not set. Using current directory for output."
+    CONTAINER_DIR="."
+fi
 
 if [ -z "$1" ]; then
     echo "Error: No container name was provided."
@@ -22,14 +21,9 @@ if [ ! -f "$DEF_FILE" ]; then
     exit 1
 fi
 
-if [ -z "${PROJECTDIR:-}" ]; then
-    echo "Error: PROJECTDIR environment variable is not set."
-    exit 1
-fi
-
-
 echo "Job started at: $(date)"
 echo "Starting Apptainer build for $NAME..."
+echo "Output will be saved to: $CONTAINER_DIR/$NAME.sif"
 
 if apptainer build \
     --fakeroot \
