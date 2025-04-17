@@ -10,8 +10,8 @@ From: jupyter/datascience-notebook:latest
 %environment
     export CARGO_HOME="/opt/.cargo"
     export RUSTUP_HOME="/opt/.rustup"
-    export JULIA_SCRATCH="${TMPDIR:-/tmp}"
-    export PATH="$PATH:$CARGO_HOME/bin:/opt/baysor_app/bin:$PATH"
+    export PATH="$PATH:$CARGO_HOME/bin"
+    export PATH="$PATH:/opt/baysor/bin"
 
 %apprun jupyterlab
     exec jupyter lab --no-browser "${@}"
@@ -24,22 +24,21 @@ From: jupyter/datascience-notebook:latest
 
 %post
     apt-get update && apt-get install -y \
-        graphviz graphviz-dev curl bzip2 flex bison libtool shellcheck \
-        default-jdk ca-certificates wget gdebi-core gcc g++ cmake \
+        graphviz graphviz-dev curl bzip2 flex bison libtool \
+        shellcheck build-essential git wget \
+        default-jdk ca-certificates gdebi-core gcc g++ cmake \
         && apt-get autoremove -y && apt-get clean -y
 
-    mkdir -p /opt/baysor_app
+    BAYSOR_ZIP="${TMPDIR:-/tmp}/baysor.zip"
+    BAYSOR_TMP="${TMPDIR:-/tmp}/baysor_extracted"
+    BAYSOR_DIR="/opt/baysor"
 
-    julia -e '
-        using Pkg
-        Pkg.add("PackageCompiler")
-        Pkg.add(PackageSpec(url="https://github.com/kharchenkolab/Baysor.git"))
-
-        using Baysor
-        using PackageCompiler
-
-        create_app(dirname(dirname(pathof(Baysor))), "/opt/baysor_app"; force=true)
-    '
+    mkdir -p "$BAYSOR_DIR"
+    curl -L -o "$BAYSOR_ZIP" "https://github.com/kharchenkolab/Baysor/releases/download/v0.7.1/baysor-x86_x64-linux-v0.7.1_build.zip"
+    unzip -q "$BAYSOR_ZIP" -d "$BAYSOR_TMP"
+    mv "$BAYSOR_TMP"/bin/baysor/* "$BAYSOR_DIR"
+    chmod +x "$BAYSOR_DIR/bin/baysor"
+    rm -rf "$BAYSOR_ZIP" "$BAYSOR_TMP"
 
     export CARGO_HOME=/opt/.cargo 
 
@@ -50,4 +49,4 @@ From: jupyter/datascience-notebook:latest
 
 %test
     echo "Running Baysor --help to confirm installation..."
-    JULIA_SCRATCH="${TMPDIR:-/tmp}" /opt/baysor_app/bin/Baysor --help || { echo "Baysor CLI test failed."; exit 1; }
+    baysor --help || { echo "Baysor CLI test failed."; exit 1; }
