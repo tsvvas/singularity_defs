@@ -1,0 +1,37 @@
+Bootstrap: docker
+From: node:20-bullseye
+
+%environment
+    export NODE_ENV=development
+    export PATH="/usr/local/bin:$PATH"
+
+%appinstall codeserver
+    curl -fsSL https://code-server.dev/install.sh | sh
+
+%apprun codeserver
+    exec code-server "$@"
+
+%post
+    apt-get update && apt-get install -y \
+        bash \
+        git \
+        curl \
+        build-essential \
+        python3 \
+        sudo \
+        openssh-client \
+        libx11-dev \
+        libxkbfile-dev \
+        libsecret-1-dev \
+        yarn \
+        && rm -rf /var/lib/apt/lists/*
+
+    npm install -g \
+        typescript \
+        eslint \
+        prettier \
+        yo \
+        generator-code \
+        vscode-langservers-extracted \
+        bash-language-server \
+        @fsouza/prettierd
