@@ -1,9 +1,12 @@
 name: spatial
 channels:
+  - rapidsai
+  - nvidia
   - conda-forge
   - bioconda
 dependencies:
-  - python=3.11
+  - python=3.12
+  - rapids=25.04
   - pip
   - ipykernel
   - ipython
