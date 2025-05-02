@@ -13,11 +13,12 @@ gprofiler-official
 gseapy
 h5py
 harmonypy
-jax[cuda12_pip]
+hyperopt
 leidenalg
 numcodecs<0.16 # https://github.com/zarr-developers/numcodecs/issues/721
 numpy<2.0
 openpyxl
+optuna
 patchworklib
 pertpy
 pillow

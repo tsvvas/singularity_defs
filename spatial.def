@@ -21,9 +21,11 @@ From: jupyter/datascience-notebook:latest
     exec code-server "${@}"
 
 %post
-    apt-get update && apt-get install -y graphviz graphviz-dev curl bzip2 flex bison libtool \
-        default-jdk ca-certificates wget gdebi-core
-    apt-get autoremove -y && apt-get clean -y
+    apt-get update && apt-get install -y \
+        graphviz graphviz-dev curl bzip2 flex bison libtool \
+        shellcheck build-essential git wget \
+        default-jdk ca-certificates gdebi-core gcc g++ cmake \
+        && apt-get autoremove -y && apt-get clean -y
 
     export CARGO_HOME=/opt/.cargo 
     
@@ -31,3 +33,9 @@ From: jupyter/datascience-notebook:latest
     mamba update -n base -c conda-forge mamba \
         && mamba env create --name spatial --file /app/spatial.yaml \
         && mamba clean --all --yes
+
+    echo "source /opt/conda/etc/profile.d/conda.sh" >> /conda_init.sh
+	echo "conda activate spatial" >> /conda_init.sh
+
+%runscript
+    exec /bin/bash --rcfile /conda_init.sh "$@"
