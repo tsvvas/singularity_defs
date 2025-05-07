@@ -43,6 +43,8 @@ From: jupyter/datascience-notebook:latest
     export CARGO_HOME=/opt/.cargo 
 
     mamba install -y rust
+    cargo install --git https://github.com/dcjones/proseg.git
+
     mamba update -n base -c conda-forge mamba \
         && mamba env create --name spatial --file /app/sopa.yaml \
         && mamba clean --all --yes
