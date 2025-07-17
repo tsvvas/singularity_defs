@@ -4,7 +4,8 @@ From: jupyter/datascience-notebook:latest
 %files
     envs/requirements-spatial.txt /app/requirements-spatial.txt
     envs/requirements-dev.txt /app/requirements-dev.txt
-    envs/spatial.yaml /app/spatial.yaml
+    envs/requirements-gpu.txt /app/requirements-gpu.txt
+    envs/spatial_gpu.yaml /app/spatial_gpu.yaml
 
 %environment
     CARGO_HOME="/opt/.cargo"
@@ -31,7 +32,7 @@ From: jupyter/datascience-notebook:latest
     
     mamba install -y rust
     mamba update -n base -c conda-forge mamba \
-        && mamba env create --name spatial --file /app/spatial.yaml \
+        && mamba env create --name spatial --file /app/spatial_gpu.yaml \
         && mamba clean --all --yes
 
     echo "source /opt/conda/etc/profile.d/conda.sh" >> /conda_init.sh

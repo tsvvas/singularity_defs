@@ -6,3 +6,4 @@ lsprotocol
 omegaconf
 pygls
 pylint
+pytest

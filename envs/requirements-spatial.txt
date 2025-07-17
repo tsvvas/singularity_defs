@@ -15,6 +15,7 @@ h5py
 harmonypy
 hyperopt
 leidenalg
+nimfa
 numcodecs<0.16 # https://github.com/zarr-developers/numcodecs/issues/721
 numpy<2.0
 openpyxl
@@ -25,7 +26,6 @@ pillow
 pygls
 pylint
 PyYAML
-rapids-singlecell
 scanpy
 scib-metrics
 scikit-learn

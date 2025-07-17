@@ -1,15 +1,9 @@
-name: spatial
+name: spatial_cpu
 channels:
-  - rapidsai
-  - nvidia
   - conda-forge
   - bioconda
 dependencies:
   - python=3.12
-  - rapids=25.04
-  - cuda-version>=12.0,<=12.8
-  - jax
-  - ray-tune
   - pip
   - ipykernel
   - ipython
