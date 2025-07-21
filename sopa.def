@@ -6,12 +6,17 @@ From: jupyter/datascience-notebook:latest
     envs/requirements-dev.txt /app/requirements-dev.txt
     envs/requirements-segmentation.txt /app/requirements-segmentation.txt
     envs/sopa.yaml /app/sopa.yaml
+    tests /tests
 
 %environment
     export CARGO_HOME="/opt/.cargo"
     export RUSTUP_HOME="/opt/.rustup"
     export PATH="$PATH:$CARGO_HOME/bin"
     export PATH="$PATH:/opt/baysor/bin"
+    export CONDA_PREFIX="/opt/conda"
+    export CONDA_EXE="/opt/conda/bin/conda"
+    export CONDA_PYTHON_EXE="/opt/conda/bin/python"
+    export XDG_CACHE_HOME="/tmp"
 
 %apprun jupyterlab
     exec jupyter lab --no-browser "${@}"
@@ -56,5 +61,19 @@ From: jupyter/datascience-notebook:latest
     exec /bin/bash --rcfile /conda_init.sh "$@"
 
 %test
-    echo "Running Baysor --help to confirm installation..."
-    baysor --help || { echo "Baysor CLI test failed."; exit 1; }
+    export NUMBA_DISABLE_CACHE=1
+    export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+
+    TOOLS="shellcheck git wget curl baysor proseg"
+
+    for cmd in $TOOLS; do
+        if command -v "$cmd" >/dev/null 2>&1; then
+            echo "Command '${cmd}' is found."
+        else
+            echo "Command '${cmd}' is missing." >&2
+            exit 1
+        fi
+    done
+
+    . /opt/conda/etc/profile.d/conda.sh
+    conda run -n spatial pytest -p no:cacheprovider /tests
