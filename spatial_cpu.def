@@ -8,7 +8,6 @@ From: jupyter/datascience-notebook:latest
     tests /tests
 
 %environment
-    export PATH="$PATH:$CARGO_HOME/bin"
     export CONDA_PREFIX="/opt/conda"
     export CONDA_EXE="/opt/conda/bin/conda"
     export CONDA_PYTHON_EXE="/opt/conda/bin/python"
@@ -56,4 +55,4 @@ From: jupyter/datascience-notebook:latest
     done
 
     . /opt/conda/etc/profile.d/conda.sh
-    conda run -n spatial pytest /tests
+    conda run -n spatial pytest -p no:cacheprovider /tests

@@ -65,4 +65,4 @@ From: jupyter/datascience-notebook:latest
     fi
 
     . /opt/conda/etc/profile.d/conda.sh
-    conda run -n spatial pytest /tests
+    conda run -n spatial pytest -p no:cacheprovider /tests
