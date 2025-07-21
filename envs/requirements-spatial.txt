@@ -5,7 +5,7 @@ captum
 cellcharter
 cellrank
 cnmf
-dask==2024.11.2 # https://github.com/scverse/squidpy/issues/937
+# dask==2024.11.2 # https://github.com/scverse/squidpy/issues/937
 datatable @ git+https://github.com/h2oai/datatable@main
 decoupler
 fastcluster

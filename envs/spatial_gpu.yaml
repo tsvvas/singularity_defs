@@ -6,7 +6,8 @@ channels:
   - bioconda
 dependencies:
   - python=3.12
-  - rapids=25.04
+  - rapids>=25.04
+  - rapids-dask-dependency>=25.4
   - cuda-version>=12.0,<=12.8
   - jax
   - ray-tune

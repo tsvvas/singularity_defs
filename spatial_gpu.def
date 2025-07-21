@@ -6,11 +6,14 @@ From: jupyter/datascience-notebook:latest
     envs/requirements-dev.txt /app/requirements-dev.txt
     envs/requirements-gpu.txt /app/requirements-gpu.txt
     envs/spatial_gpu.yaml /app/spatial_gpu.yaml
+    tests /tests
 
 %environment
-    CARGO_HOME="/opt/.cargo"
-    RUSTUP_HOME="/opt/.rustup"
-    export PATH=$PATH:$CARGO_HOME/bin
+    export CONDA_PREFIX="/opt/conda"
+    export CONDA_EXE="/opt/conda/bin/conda"
+    export CONDA_PYTHON_EXE="/opt/conda/bin/python"
+    export CONDA_ENVS_DIRS="/tmp"
+    export XDG_CACHE_HOME="/tmp"
 
 %apprun jupyterlab
     exec jupyter lab --no-browser "${@}"
@@ -28,9 +31,6 @@ From: jupyter/datascience-notebook:latest
         default-jdk ca-certificates gdebi-core gcc g++ cmake \
         && apt-get autoremove -y && apt-get clean -y
 
-    export CARGO_HOME=/opt/.cargo 
-    
-    mamba install -y rust
     mamba update -n base -c conda-forge mamba \
         && mamba env create --name spatial --file /app/spatial_gpu.yaml \
         && mamba clean --all --yes
@@ -40,3 +40,29 @@ From: jupyter/datascience-notebook:latest
 
 %runscript
     exec /bin/bash --rcfile /conda_init.sh "$@"
+
+%test
+    export NUMBA_DISABLE_CACHE=1
+    export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+
+    TOOLS="shellcheck git wget curl"
+
+    for cmd in $TOOLS; do
+        if command -v "$cmd" >/dev/null 2>&1; then
+            echo "Command '${cmd}' is found."
+        else
+            echo "Command '${cmd}' is missing." >&2
+            exit 1
+        fi
+    done
+
+    if nvidia-smi >/dev/null 2>&1; then
+        echo "nvidia-smi is detected:\n\t$(nvidia-smi --query-gpu=name,driver_version --format=csv,noheader)"
+    else
+        echo "nvidia-smi is not visible. Tests using GPU acceleration will be omitted."
+        export RAPIDS_NO_INITIALIZE=1
+        export CUDF_NO_INITIALIZE=1
+    fi
+
+    . /opt/conda/etc/profile.d/conda.sh
+    conda run -n spatial pytest /tests
