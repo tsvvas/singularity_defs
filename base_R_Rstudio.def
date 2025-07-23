@@ -1,0 +1,11 @@
+Bootstrap: docker
+From: rocker/rstudio
+
+%environment
+	export PATH=/usr/lib/rstudio-server/bin:$PATH
+
+%apprun rserver
+    exec rserver "${@}"
+
+%test
+	rserver --help
