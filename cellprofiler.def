@@ -1,0 +1,62 @@
+Bootstrap: docker
+From: jupyter/datascience-notebook:latest
+
+%files
+    envs/requirements-spatial.txt /app/requirements-spatial.txt
+    envs/requirements-dev.txt /app/requirements-dev.txt
+    envs/cellprofiler.yaml /app/cellprofiler.yaml
+    tests /tests
+
+%environment
+    export CONDA_PREFIX="/opt/conda"
+    export CONDA_EXE="/opt/conda/bin/conda"
+    export CONDA_PYTHON_EXE="/opt/conda/bin/python"
+    export XDG_CACHE_HOME="/tmp"
+
+%apprun jupyterlab
+    exec jupyter lab --no-browser "${@}"
+
+%appinstall codeserver
+    curl -fsSL https://code-server.dev/install.sh | sh
+
+%apprun codeserver
+    exec code-server "${@}"
+
+%post
+    apt-get update && apt-get install -y \
+        graphviz graphviz-dev curl bzip2 flex bison libtool \
+        shellcheck build-essential git wget \
+        default-jdk ca-certificates gdebi-core gcc g++ cmake \
+        && apt-get autoremove -y && apt-get clean -y
+
+    mamba update -n base -c conda-forge mamba \
+        && mamba env create --name spatial --file /app/cellprofiler.yaml \
+        && mamba clean --all --yes
+
+    conda run -n spatial uv pip install cp_measure \
+        -r /app/requirements-spatial.txt \
+        -r /app/requirements-dev.txt
+
+    echo "source /opt/conda/etc/profile.d/conda.sh" >> /conda_init.sh
+	echo "conda activate spatial" >> /conda_init.sh
+
+%runscript
+    exec /bin/bash --rcfile /conda_init.sh "$@"
+
+%test
+    export NUMBA_DISABLE_CACHE=1
+    export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+
+    TOOLS="shellcheck git wget curl"
+
+    for cmd in $TOOLS; do
+        if command -v "$cmd" >/dev/null 2>&1; then
+            echo "Command '${cmd}' is found."
+        else
+            echo "Command '${cmd}' is missing." >&2
+            exit 1
+        fi
+    done
+
+    . /opt/conda/etc/profile.d/conda.sh
+    conda run -n spatial pytest -p no:cacheprovider /tests
