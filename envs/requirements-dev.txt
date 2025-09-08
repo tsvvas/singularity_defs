@@ -7,3 +7,4 @@ omegaconf
 pygls
 pylint
 pytest
+python-dotenv
