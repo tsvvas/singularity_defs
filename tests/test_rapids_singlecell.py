@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 import scanpy as sc
 import torch
@@ -22,11 +23,13 @@ def test_cudf_roundtrip():
 def test_rsc_gpu_loading(adata):
     import cudf
     import cupy
+    import cupyx
     import rapids_singlecell as rsc
 
+    adata.obs["cell_id"] = np.arange(adata.n_obs)
     rsc.get.anndata_to_GPU(adata)
 
-    assert isinstance(adata.X, cupy.ndarray)
+    assert isinstance(adata.X, (cupy.ndarray, cupyx.scipy.sparse.spmatrix))
     assert isinstance(adata.obs, cudf.DataFrame)
     assert isinstance(adata.var, cudf.DataFrame)
 
