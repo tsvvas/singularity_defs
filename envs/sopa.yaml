@@ -4,7 +4,7 @@ channels:
   - bioconda
 dependencies:
   - python=3.11
-  - pip
+  - uv
   - ipykernel
   - ipython
   - ipywidgets
@@ -14,7 +14,3 @@ dependencies:
   - nb_conda_kernels
   - pygraphviz
   - memray
-  - pip:
-      - -r requirements-segmentation.txt
-      - -r requirements-spatial.txt
-      - -r requirements-dev.txt

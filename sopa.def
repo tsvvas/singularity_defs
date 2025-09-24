@@ -54,6 +54,11 @@ From: jupyter/datascience-notebook:latest
         && mamba env create --name spatial --file /app/sopa.yaml \
         && mamba clean --all --yes
 
+    conda run -n spatial uv pip install \
+        -r /app/requirements-segmentation.txt \
+        -r /app/requirements-spatial.txt \
+        -r /app/requirements-dev.txt
+
     echo "source /opt/conda/etc/profile.d/conda.sh" >> /conda_init.sh
 	echo "conda activate spatial" >> /conda_init.sh
 
