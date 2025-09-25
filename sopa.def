@@ -28,10 +28,11 @@ From: jupyter/datascience-notebook:latest
     exec code-server "${@}"
 
 %post
+    # JDK is needed for vscode's nextflow extension
     apt-get update && apt-get install -y \
         graphviz graphviz-dev curl bzip2 flex bison libtool \
         shellcheck build-essential git wget \
-        default-jdk ca-certificates gdebi-core gcc g++ cmake \
+        openjdk-17-jdk ca-certificates gdebi-core gcc g++ cmake \
         && apt-get autoremove -y && apt-get clean -y
 
     BAYSOR_ZIP="${TMPDIR:-/tmp}/baysor.zip"
@@ -79,6 +80,11 @@ From: jupyter/datascience-notebook:latest
             exit 1
         fi
     done
+
+    major=$(java --version 2>&1 | sed -n '1{s/.* \([0-9][0-9]*\)\..*/\1/;p}')
+
+    [ -n "$major" ] && [ "$major" -ge 17 ] && echo "OK: Java major=$major ≥ 17" \
+      || { echo "FAIL: Need Java ≥ 17 (found $major)" >&2; exit 1; }
 
     . /opt/conda/etc/profile.d/conda.sh
     conda run -n spatial pytest -p no:cacheprovider /tests
