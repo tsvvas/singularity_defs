@@ -1,17 +1,27 @@
-NAME="$1"
-DEF_FILE="$NAME.def"
+INPUT="$1"
+
+if [ -z "$INPUT" ]; then
+    echo "Error: No container name was provided."
+    echo "Usage: $0 <container-name>"
+    exit 1
+fi
+
+case "$INPUT" in
+  *.def)
+    DEF_FILE="$INPUT"
+    NAME="${INPUT%.def}"
+    ;;
+  *)
+    DEF_FILE="$INPUT.def"
+    NAME="$INPUT"
+    ;;
+esac
 
 if [ -n "${PROJECTDIR:-}" ]; then
     CONTAINER_DIR="$PROJECTDIR/containers"
 else
     echo "Warning: PROJECTDIR is not set. Using current directory for output."
     CONTAINER_DIR="."
-fi
-
-if [ -z "$1" ]; then
-    echo "Error: No container name was provided."
-    echo "Usage: $0 <container-name>"
-    exit 1
 fi
 
 if [ ! -f "$DEF_FILE" ]; then
