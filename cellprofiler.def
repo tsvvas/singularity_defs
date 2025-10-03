@@ -4,6 +4,7 @@ From: jupyter/datascience-notebook:latest
 %files
     envs/requirements-spatial.txt /app/requirements-spatial.txt
     envs/requirements-dev.txt /app/requirements-dev.txt
+    envs/requirements-image.txt /app/requirements-image.txt
     envs/cellprofiler.yaml /app/cellprofiler.yaml
     tests /tests
 
@@ -33,7 +34,8 @@ From: jupyter/datascience-notebook:latest
         && mamba env create --name spatial --file /app/cellprofiler.yaml \
         && mamba clean --all --yes
 
-    conda run -n spatial uv pip install cp_measure \
+    conda run -n spatial uv pip install \
+        -r /app/requirements-image.txt \
         -r /app/requirements-spatial.txt \
         -r /app/requirements-dev.txt
 
