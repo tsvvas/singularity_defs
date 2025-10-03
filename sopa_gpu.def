@@ -1,0 +1,103 @@
+Bootstrap: docker
+From: jupyter/datascience-notebook:latest
+
+%files
+    envs/requirements-dev.txt /app/requirements-dev.txt
+    envs/requirements-gpu.txt /app/requirements-gpu.txt
+    envs/requirements-image.txt /app/requirements-image.txt
+    envs/requirements-segmentation.txt /app/requirements-segmentation.txt
+    envs/requirements-spatial.txt /app/requirements-spatial.txt
+    envs/sopa_gpu.yaml /app/sopa_gpu.yaml
+    tests /tests
+
+%environment
+    export CARGO_HOME="/opt/.cargo"
+    export RUSTUP_HOME="/opt/.rustup"
+    export PATH="$PATH:$CARGO_HOME/bin"
+    export PATH="$PATH:/opt/baysor/bin"
+    export CONDA_PREFIX="/opt/conda"
+    export CONDA_EXE="/opt/conda/bin/conda"
+    export CONDA_PYTHON_EXE="/opt/conda/bin/python"
+    export CONDA_ENVS_DIRS="/tmp"
+    export XDG_CACHE_HOME="/tmp"
+
+%apprun jupyterlab
+    exec jupyter lab --no-browser "${@}"
+
+%appinstall codeserver
+    curl -fsSL https://code-server.dev/install.sh | sh
+
+%apprun codeserver
+    exec code-server "${@}"
+
+%post
+    # JDK is needed for vscode's nextflow extension
+    apt-get update && apt-get install -y \
+        graphviz graphviz-dev curl bzip2 flex bison libtool \
+        shellcheck build-essential git wget \
+        openjdk-17-jdk ca-certificates gdebi-core gcc g++ cmake \
+        && apt-get autoremove -y && apt-get clean -y
+
+    BAYSOR_ZIP="${TMPDIR:-/tmp}/baysor.zip"
+    BAYSOR_TMP="${TMPDIR:-/tmp}/baysor_extracted"
+    BAYSOR_DIR="/opt/baysor"
+
+    mkdir -p "$BAYSOR_DIR"
+    curl -L -o "$BAYSOR_ZIP" "https://github.com/kharchenkolab/Baysor/releases/download/v0.7.1/baysor-x86_x64-linux-v0.7.1_build.zip"
+    unzip -q "$BAYSOR_ZIP" -d "$BAYSOR_TMP"
+    mv "$BAYSOR_TMP"/bin/baysor/* "$BAYSOR_DIR"
+    chmod +x "$BAYSOR_DIR/bin/baysor"
+    rm -rf "$BAYSOR_ZIP" "$BAYSOR_TMP"
+
+    export CARGO_HOME=/opt/.cargo 
+
+    mamba install -y rust
+    cargo install --git https://github.com/dcjones/proseg.git --rev 1d6f305
+
+    mamba update -n base -c conda-forge mamba \
+        && mamba env create --name spatial --file /app/sopa_gpu.yaml \
+        && mamba clean --all --yes
+
+    conda run -n spatial uv pip install \
+        -r /app/requirements-dev.txt \
+        -r /app/requirements-gpu.txt \
+        -r /app/requirements-image.txt \
+        -r /app/requirements-segmentation.txt \
+        -r /app/requirements-spatial.txt \
+
+    echo "source /opt/conda/etc/profile.d/conda.sh" >> /conda_init.sh
+	echo "conda activate spatial" >> /conda_init.sh
+
+%runscript
+    exec /bin/bash --rcfile /conda_init.sh "$@"
+
+%test
+    export NUMBA_DISABLE_CACHE=1
+    export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+
+    TOOLS="shellcheck git wget curl baysor proseg"
+
+    for cmd in $TOOLS; do
+        if command -v "$cmd" >/dev/null 2>&1; then
+            echo "Command '${cmd}' is found."
+        else
+            echo "Command '${cmd}' is missing." >&2
+            exit 1
+        fi
+    done
+
+    major=$(java --version 2>&1 | sed -n '1{s/.* \([0-9][0-9]*\)\..*/\1/;p}')
+
+    [ -n "$major" ] && [ "$major" -ge 17 ] && echo "OK: Java major=$major ≥ 17" \
+      || { echo "FAIL: Need Java ≥ 17 (found $major)" >&2; exit 1; }
+
+    if nvidia-smi >/dev/null 2>&1; then
+        echo "nvidia-smi is detected:\n\t$(nvidia-smi --query-gpu=name,driver_version --format=csv,noheader)"
+    else
+        echo "nvidia-smi is not visible. Tests using GPU acceleration will be omitted."
+        export RAPIDS_NO_INITIALIZE=1
+        export CUDF_NO_INITIALIZE=1
+    fi
+
+    . /opt/conda/etc/profile.d/conda.sh
+    conda run -n spatial pytest -p no:cacheprovider /tests
