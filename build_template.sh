@@ -30,6 +30,7 @@ if [ ! -f "$DEF_FILE" ]; then
 fi
 
 echo "Job started at: $(date)"
+echo "Job is running on the node: $SLURMD_NODENAME"
 echo "Starting Apptainer build for $NAME..."
 echo "Output will be saved to: $CONTAINER_DIR/$NAME.sif"
 
