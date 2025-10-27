@@ -1,1 +1,1 @@
-sopa[cellpose,baysor,stardist] >= 2.0.3
+sopa[cellpose,baysor,stardist]>=2.1.4 # Lower versions are not compatible with anndata>=0.12
