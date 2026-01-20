@@ -52,11 +52,13 @@ From: jupyter/datascience-notebook:latest
     export CARGO_HOME=/opt/.cargo 
 
     mamba install -y rust
-    cargo install --git https://github.com/dcjones/proseg.git --rev 1d6f305
+    cargo install --git https://github.com/dcjones/proseg.git
 
     mamba update -n base -c conda-forge mamba \
         && mamba env create --name spatial --file /app/sopa_gpu.yaml \
         && mamba clean --all --yes
+
+    mamba install -n spatial -c conda-forge pyclesperanto-prototype
 
     conda run -n spatial uv pip install \
         -r /app/requirements-dev.txt \
@@ -64,6 +66,7 @@ From: jupyter/datascience-notebook:latest
         -r /app/requirements-image.txt \
         -r /app/requirements-segmentation.txt \
         -r /app/requirements-spatial.txt \
+        opencv-rolling-ball
 
     echo "source /opt/conda/etc/profile.d/conda.sh" >> /conda_init.sh
 	echo "conda activate spatial" >> /conda_init.sh
@@ -101,3 +104,6 @@ From: jupyter/datascience-notebook:latest
 
     . /opt/conda/etc/profile.d/conda.sh
     conda run -n spatial pytest -p no:cacheprovider /tests
+
+%labels
+    Version {{ build_date }}
