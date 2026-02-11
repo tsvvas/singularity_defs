@@ -3,6 +3,7 @@ anndata>=0.12
 bbknn>=1.6.0
 captum
 cellcharter>=0.3
+cellphonedb>=5.0.0
 cellrank
 cnmf>=1.7
 dask==2024.11.2 
