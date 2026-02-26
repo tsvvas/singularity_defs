@@ -26,6 +26,7 @@ numpy>=1.24,<2.0
 openpyxl>=3.0
 optuna
 patchworklib
+pandas<3.0 # Pandas changed string handling https://pandas.pydata.org/pandas-docs/stable/whatsnew/v3.0.0.html
 pertpy>=1.0
 pillow
 pygls

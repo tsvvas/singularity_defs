@@ -8,3 +8,4 @@ pygls
 pylint
 pytest
 python-dotenv
+setuptools<82 # https://github.com/scverse/spatialdata/issues/1065
