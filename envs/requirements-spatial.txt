@@ -19,7 +19,10 @@ h5py>=3.8
 harmonypy
 hyperopt
 leidenalg
+liana[extras]
 markov_clustering
+matplotlib-venn
+monkeybread
 nimfa
 numcodecs<0.16 # https://github.com/zarr-developers/numcodecs/issues/721
 numpy>=1.24,<2.0
@@ -39,6 +42,7 @@ scvelo
 scvi-tools>=1.3.0,<1.4.0
 seaborn>=0.13
 spatialdata[extra]>=0.3
+SpatialDM
 squidpy>=1.6.5
 starcatpy
 statannotations>=0.7
@@ -46,3 +50,4 @@ tangram-sc
 tf-keras
 tqdm
 umap-learn
+upsetplot
