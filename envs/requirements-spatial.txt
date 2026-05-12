@@ -10,6 +10,7 @@ dask==2024.11.2
 # It is important to fix dask version due to multiple issues:
 # https://github.com/scverse/squidpy/issues/937
 # https://github.com/scverse/spatialdata/issues/835
+datashader
 datatable @ git+https://github.com/h2oai/datatable@main
 decoupler
 fastcluster
