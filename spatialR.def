@@ -1,0 +1,113 @@
+Bootstrap: docker
+From: rocker/rstudio:latest
+
+%files
+    R/spatial_packages.R /opt/spatial/spatial_packages.R
+    R/vscode-r-profile.R /opt/spatial/vscode-r-profile.R
+
+%environment
+    export PATH="/opt/spatial-py/.pixi/envs/default/bin:/opt/pixi/bin:/usr/lib/rstudio-server/bin:/usr/local/bin:${PATH}"
+    export R_LIBS_SITE="/usr/local/lib/R/site-library"
+    export RETICULATE_PYTHON="/opt/spatial-py/.pixi/envs/default/bin/python"
+
+%appinstall codeserver
+    curl -fsSL https://code-server.dev/install.sh | sh
+
+%apprun codeserver
+    exec code-server "${@}"
+
+%apprun jupyterlab
+    exec jupyter lab --no-browser "${@}"
+
+%apprun rserver
+    exec rserver "$@"
+
+%apprun R
+    exec R "$@"
+
+%apprun Rscript
+    exec Rscript "$@"
+
+%apprun radian
+    exec radian "$@"
+
+%post
+    set -eux
+
+    export DEBIAN_FRONTEND="noninteractive"
+    export PIXI_HOME="/opt/pixi"
+    export PATH="${PIXI_HOME}/bin:/usr/lib/rstudio-server/bin:${PATH}"
+    export R_LIBS_SITE="/usr/local/lib/R/site-library"
+    export RETICULATE_PYTHON="/opt/spatial-py/.pixi/envs/default/bin/python"
+
+    cat /opt/spatial/vscode-r-profile.R >> "$(R RHOME)/etc/Rprofile.site"
+
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        bash-completion \
+        build-essential \
+        ca-certificates \
+        libcurl4-openssl-dev \
+        curl \
+        wget
+
+    mkdir -p /opt/pixi /opt/spatial /opt/spatial-py
+
+    curl -fsSL https://pixi.sh/install.sh | bash
+
+    pixi global install \
+        --channel conda-forge \
+        jupyter \
+        jupyterlab \
+        ipykernel \
+        ipywidgets \
+        widgetsnbextension \
+        radian
+
+    jupyter kernelspec --version
+
+    cd /opt/spatial-py
+    pixi init --channel conda-forge
+    pixi add \
+        python=3.12 \
+        pip \
+        ipykernel \
+        ipython \
+        anndata \
+        h5py \
+        leidenalg \
+        matplotlib \
+        networkx \
+        numpy \
+        pandas \
+        python-igraph \
+        scanpy \
+        scikit-learn \
+        scipy \
+        umap-learn
+
+    Rscript /opt/spatial/spatial_packages.R
+
+    apt-get clean
+    rm -rf \
+        /tmp/Rtmp* \
+        /tmp/downloaded_packages \
+        /var/lib/apt/lists/*
+
+%test
+    R --version
+    Rscript -e 'stopifnot(requireNamespace("languageserver", quietly = TRUE))'
+    Rscript -e 'stopifnot(requireNamespace("lintr", quietly = TRUE))'
+    Rscript -e 'stopifnot(requireNamespace("styler", quietly = TRUE))'
+    Rscript -e 'stopifnot(requireNamespace("httpgd", quietly = TRUE))'
+    Rscript -e 'stopifnot(requireNamespace("testthat", quietly = TRUE))'
+    Rscript -e 'stopifnot(requireNamespace("Seurat", quietly = TRUE))'
+    Rscript -e 'stopifnot(requireNamespace("Giotto", quietly = TRUE))'
+    Rscript -e 'stopifnot(requireNamespace("CellChat", quietly = TRUE))'
+    Rscript -e 'stopifnot(requireNamespace("nichenetr", quietly = TRUE))'
+    Rscript -e 'reticulate::py_config(); stopifnot(file.exists(Sys.getenv("RETICULATE_PYTHON")))'
+    radian --version
+    rserver --help >/dev/null
+
+%labels
+    Version {{ build_date }}
