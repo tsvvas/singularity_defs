@@ -94,6 +94,7 @@ bioc_packages <- c(
   "bioc::scuttle",
   "bioc::SingleCellExperiment",
   "bioc::SummarizedExperiment",
+  "bioc::anndataR",
   "bioc::UCell",
   "bioc::ComplexHeatmap",
   "bioc::DESeq2",
