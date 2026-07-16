@@ -6,7 +6,7 @@ cellcharter>=0.3
 cellphonedb>=5.0.0
 cellrank
 cnmf>=1.7
-dask==2024.11.2 
+# dask==2024.11.2 
 # It is important to fix dask version due to multiple issues:
 # https://github.com/scverse/squidpy/issues/937
 # https://github.com/scverse/spatialdata/issues/835
@@ -26,7 +26,7 @@ matplotlib-venn
 monkeybread
 nimfa
 numcodecs<0.16 # https://github.com/zarr-developers/numcodecs/issues/721
-numpy>=1.24,<2.0
+# numpy>=1.24,<2.0
 openpyxl>=3.0
 optuna
 patchworklib
@@ -42,7 +42,7 @@ scipy>=1.8
 scvelo
 scvi-tools>=1.3.0,<1.4.0
 seaborn>=0.13
-spatialdata[extra]>=0.3
+spatialdata[extra]==0.8
 SpatialDM
 squidpy>=1.6.5
 starcatpy

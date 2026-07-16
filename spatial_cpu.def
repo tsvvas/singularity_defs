@@ -8,10 +8,10 @@ From: jupyter/datascience-notebook:latest
     tests /tests
 
 %environment
-    export CONDA_PREFIX="/opt/conda"
-    export CONDA_EXE="/opt/conda/bin/conda"
-    export CONDA_PYTHON_EXE="/opt/conda/bin/python"
+    export PIXI_HOME="/opt/pixi"
     export XDG_CACHE_HOME="/tmp"
+    export NUMBA_CACHE_DIR="/tmp/numba"
+    export MPLCONFIGDIR="/tmp/matplotlib"
 
 %apprun jupyterlab
     exec jupyter lab --no-browser "${@}"
@@ -23,21 +23,85 @@ From: jupyter/datascience-notebook:latest
     exec code-server "${@}"
 
 %post
-    apt-get update && apt-get install -y \
-        graphviz graphviz-dev curl bzip2 flex bison libtool \
-        shellcheck build-essential git wget \
-        default-jdk ca-certificates gdebi-core gcc g++ cmake \
-        && apt-get autoremove -y && apt-get clean -y
+    export DEBIAN_FRONTEND="noninteractive"
+    export PIXI_HOME="/opt/pixi"
+    export PIXI_CACHE_DIR="/var/cache/pixi"
+    export PATH="${PIXI_HOME}/bin:${PATH}"
 
-    mamba update -n base -c conda-forge mamba \
-        && mamba env create --name spatial --file /app/spatial_cpu.yaml \
-        && mamba clean --all --yes
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        bash-completion \
+        bat \
+        bison \
+        build-essential \
+        bzip2 \
+        ca-certificates \
+        cmake \
+        curl \
+        default-jdk \
+        flex \
+        fzf \
+        g++ \
+        gcc \
+        git \
+        graphviz \
+        libgraphviz-dev \
+        libtool \
+        miller \
+        shellcheck \
+        tree \
+        wget
 
-    echo "source /opt/conda/etc/profile.d/conda.sh" >> /conda_init.sh
-	echo "conda activate spatial" >> /conda_init.sh
+    mkdir -p \
+        /opt/pixi \
+        /opt/spatial \
+        /var/cache/pixi
+
+    curl -fsSL https://pixi.sh/install.sh | PIXI_HOME="${PIXI_HOME}" bash
+    pixi --version
+
+    head -n -4 /app/spatial_cpu.yaml > /app/spatial_cpu_pixi.yaml
+    pixi init /opt/spatial --import /app/spatial_cpu_pixi.yaml
+    pixi import \
+        --manifest-path /opt/spatial/pixi.toml \
+        --format pypi-txt \
+        --feature default \
+        --environment default \
+        /app/requirements-spatial.txt
+
+    pixi import \
+        --manifest-path /opt/spatial/pixi.toml \
+        --format pypi-txt \
+        --feature default \
+        --environment default \
+        /app/requirements-dev.txt
+
+    pixi install --manifest-path /opt/spatial/pixi.toml
+
+    pixi shell-hook \
+        --manifest-path /opt/spatial/pixi.toml \
+        --shell bash \
+        --as-is \
+        --no-completions \
+        --change-ps1 false \
+        > /opt/spatial/activate.sh
+
+    chmod 0444 /opt/spatial/activate.sh
+    cat /opt/spatial/activate.sh >> "${APPTAINER_ENVIRONMENT}"
+    . /opt/spatial/activate.sh
+
+    python --version
+    jupyter lab --version
+    jupyter kernelspec list
+
+    apt-get clean
+    rm -rf \
+        /var/cache/pixi \
+        /var/lib/apt/lists/* \
+        /root/.cache
 
 %runscript
-    exec /bin/bash --rcfile /conda_init.sh "$@"
+    exec /usr/bin/bash "$@"
 
 %test
     export NUMBA_DISABLE_CACHE=1
@@ -54,5 +118,8 @@ From: jupyter/datascience-notebook:latest
         fi
     done
 
-    . /opt/conda/etc/profile.d/conda.sh
-    conda run -n spatial pytest -p no:cacheprovider /tests
+    . /opt/spatial/activate.sh
+    python -m pytest -p no:cacheprovider /tests
+
+%labels
+    Version {{ build_date }}
