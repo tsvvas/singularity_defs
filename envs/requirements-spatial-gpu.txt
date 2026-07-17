@@ -1,0 +1,50 @@
+adjusttext
+anndata>=0.12
+bbknn>=1.6.0
+captum
+cellcharter>=0.3
+cellphonedb>=5.0.0
+cellrank
+cnmf>=1.7
+datashader
+datatable @ git+https://github.com/h2oai/datatable@main
+decoupler
+fastcluster
+gprofiler-official>=1.0
+gseapy
+h5py>=3.8
+harmonypy
+hyperopt
+leidenalg
+liana[extras]
+markov_clustering
+matplotlib-venn
+monkeybread
+nimfa
+numcodecs<0.16 # https://github.com/zarr-developers/numcodecs/issues/721
+openpyxl>=3.0
+optuna
+patchworklib
+pandas<3.0 # Pandas changed string handling https://pandas.pydata.org/pandas-docs/stable/whatsnew/v3.0.0.html
+pertpy>=1.0
+pillow
+pygls
+PyYAML
+rapids-singlecell-cu12
+scanpy>=1.9.3
+scib-metrics>=0.5
+scikit-learn>=1.7
+scipy>=1.8
+scvelo
+scvi-tools
+seaborn>=0.13
+spatialdata[extra]==0.7.3 # rapids requires distributed==2026.1.1, which is not supported by spatialdata==0.8
+SpatialDM
+squidpy>=1.6.5
+starcatpy
+statannotations>=0.7
+tangram-sc
+tf-keras
+tqdm
+umap-learn
+upsetplot
