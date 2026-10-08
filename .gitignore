@@ -196,3 +196,6 @@ slurm-*.job
 # System-specific build script
 build.sh
 build.conf
+
+# Third-party vendor installers / archives
+third_party/*
