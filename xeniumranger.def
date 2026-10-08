@@ -1,0 +1,40 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%labels
+    Version {{ build_date }}
+    org.opencontainers.image.title "Xenium Ranger"
+    org.opencontainers.image.description "10x Genomics Xenium Ranger 4.0.1"
+
+%files
+    third_party/xeniumranger-4.0.1.tar.gz /opt/xeniumranger-4.0.1.tar.gz
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        bash \
+        ca-certificates \
+        coreutils \
+        findutils \
+        gzip \
+        procps \
+        sed \
+        tar
+    rm -rf /var/lib/apt/lists/*
+
+    cd /opt
+    tar -xzf xeniumranger-4.0.1.tar.gz
+    rm -f xeniumranger-4.0.1.tar.gz
+
+    ln -s /opt/xeniumranger-xenium4.0/xeniumranger /usr/local/bin/xeniumranger
+
+%environment
+    export LANG=C.UTF-8
+    export LC_ALL=C.UTF-8
+
+%runscript
+    exec xeniumranger "$@"
+
+%test
+    xeniumranger --help >/dev/null
