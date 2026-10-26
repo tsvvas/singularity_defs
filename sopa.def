@@ -2,7 +2,7 @@ Bootstrap: docker
 From: jupyter/datascience-notebook:latest
 
 %files
-    envs/requirements-spatial.txt /app/requirements-spatial.txt
+    envs/requirements-spatial-cpu.txt /app/requirements-spatial.txt
     envs/requirements-dev.txt /app/requirements-dev.txt
     envs/requirements-segmentation.txt /app/requirements-segmentation.txt
     envs/sopa.yaml /app/sopa.yaml
