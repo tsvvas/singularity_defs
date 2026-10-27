@@ -48,7 +48,8 @@ squidpy>=1.6.5
 starcatpy
 statannotations>=0.7
 tangram-sc
-tf-keras
+tensorflow==2.19.1 # https://github.com/tensorflow/tensorflow/issues/124205
+tf-keras==2.19.0
 tqdm
 umap-learn
 upsetplot
