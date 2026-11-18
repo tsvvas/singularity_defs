@@ -2,7 +2,7 @@ Bootstrap: docker
 From: jupyter/datascience-notebook:latest
 
 %files
-    envs/requirements-spatial.txt /app/requirements-spatial.txt
+    envs/requirements-spatial-cpu.txt /app/requirements-spatial-cpu.txt
     envs/requirements-dev.txt /app/requirements-dev.txt
     envs/spatial_cpu.yaml /app/spatial_cpu.yaml
     tests /tests
@@ -67,7 +67,7 @@ From: jupyter/datascience-notebook:latest
         --format pypi-txt \
         --feature default \
         --environment default \
-        /app/requirements-spatial.txt
+        /app/requirements-spatial-cpu.txt
 
     pixi import \
         --manifest-path /opt/spatial/pixi.toml \
